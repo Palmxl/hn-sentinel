@@ -1,35 +1,73 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import React, { useEffect } from 'react'
+import { Sidebar } from './components/layout/Sidebar'
+import { StatusBar } from './components/status/StatusBar'
+import { DashboardPage } from './pages/DashboardPage'
+import { KeywordsPage } from './pages/KeywordsPage'
+import { LogsPage } from './pages/LogsPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { useAppStore } from './store/appStore'
 
-function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+export default function App(): React.ReactElement {
+  const { activeTab, setSchedulerStatus, setSettings } = useAppStore()
+
+  // Carga inicial del estado
+  useEffect(() => {
+    const init = async (): Promise<void> => {
+      // Carga settings
+      const settingsRes = await window.electronAPI.settings.get()
+      if (settingsRes.success && settingsRes.data) {
+        setSettings(settingsRes.data)
+      }
+
+      // Carga estado del scheduler
+      const statusRes = await window.electronAPI.scheduler.getStatus()
+      if (statusRes.success && statusRes.data) {
+        setSchedulerStatus(statusRes.data)
+      }
+    }
+    init()
+  }, [setSettings, setSchedulerStatus])
+
+  // Escucha actualizaciones del scheduler en tiempo real
+  useEffect(() => {
+    const unsubscribe = window.electronAPI.on.schedulerStatus(status => {
+      setSchedulerStatus(status)
+    })
+    return (): void => {
+      unsubscribe()
+    }
+  }, [setSchedulerStatus])
+
+  const renderPage = (): React.ReactElement => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <DashboardPage />
+      case 'keywords':
+        return <KeywordsPage />
+      case 'logs':
+        return <LogsPage />
+      case 'settings':
+        return <SettingsPage />
+      default:
+        return <DashboardPage />
+    }
+  }
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
+    <div className="flex h-screen w-screen overflow-hidden bg-sentinel-bg">
+      {/* Sidebar de navegación */}
+      <Sidebar />
+
+      {/* Contenido principal */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Barra de estado superior */}
+        <StatusBar />
+
+        {/* Página activa */}
+        <main className="flex-1 overflow-hidden">
+          {renderPage()}
+        </main>
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    </div>
   )
 }
-
-export default App
