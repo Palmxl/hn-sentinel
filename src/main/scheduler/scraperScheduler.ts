@@ -1,5 +1,5 @@
 import * as cron from 'node-cron'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, Notification } from 'electron'
 import { runScrapeOrchestration } from '../scraper/orchestrator'
 import { getSettings, updateSettings } from '../services/settingsService'
 import { getSchedulerStatus } from '../services/scraperRunsService'
@@ -84,11 +84,12 @@ export class ScraperScheduler {
       // Notifica al renderer que terminó el scrape
       this.emitToRenderer(IPC_CHANNELS.EVENT_SCRAPE_COMPLETE, result)
 
-      // Si hubo posts nuevos, notifica también
+      // Si hubo posts nuevos, notifica con evento IPC y notificación del sistema
       if (result.postsInserted > 0) {
         this.emitToRenderer(IPC_CHANNELS.EVENT_NEW_POSTS, {
           count: result.postsInserted
         })
+        this.showNotification(result.postsInserted)
       }
     } catch (err) {
       logger.error(`Error en scrape del scheduler: ${err}`, CONTEXT)
@@ -97,6 +98,22 @@ export class ScraperScheduler {
       const settings = getSettings()
       this.updateNextRunTime(settings.intervalMinutes)
       this.emitStatus()
+    }
+  }
+
+  // Muestra notificación nativa del sistema operativo
+  private showNotification(count: number): void {
+    try {
+      if (Notification.isSupported()) {
+        new Notification({
+          title: 'HN Sentinel',
+          body: `${count} nuevo${count > 1 ? 's' : ''} post${count > 1 ? 's' : ''} detectado${count > 1 ? 's' : ''}`,
+          urgency: 'normal'
+        }).show()
+        logger.info(`Notificación enviada: ${count} posts nuevos`, CONTEXT)
+      }
+    } catch (err) {
+      logger.warn(`No se pudo mostrar notificación: ${err}`, CONTEXT)
     }
   }
 
