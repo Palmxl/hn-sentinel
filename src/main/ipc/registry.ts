@@ -13,6 +13,7 @@ import {
 } from '../services/postsService'
 import { getAllLogs, clearLogs, logger } from '../services/logsService'
 import { getSettings, updateSettings } from '../services/settingsService'
+import { exportToCsv, exportToJson } from '../services/exportService'
 import type { ScraperScheduler } from '../scheduler/scraperScheduler'
 
 // Referencia al scheduler, se inyecta después de su inicialización
@@ -110,4 +111,8 @@ export function registerAllIpcHandlers(): void {
   // ── Logs ──────────────────────────────────────
   handle(IPC_CHANNELS.LOGS_GET_ALL, () => getAllLogs())
   handle(IPC_CHANNELS.LOGS_CLEAR, () => clearLogs())
+
+  // ── Export ───────────────────────────────────
+  handle(IPC_CHANNELS.POSTS_EXPORT_CSV, () => exportToCsv())
+  handle(IPC_CHANNELS.POSTS_EXPORT_JSON, () => exportToJson())
 }

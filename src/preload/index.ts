@@ -36,7 +36,11 @@ const electronAPI = {
     delete: (id: number): Promise<IpcResponse<void>> =>
       ipcRenderer.invoke(IPC_CHANNELS.POSTS_DELETE, id),
     clearAll: (): Promise<IpcResponse<number>> =>
-      ipcRenderer.invoke(IPC_CHANNELS.POSTS_CLEAR_ALL)
+      ipcRenderer.invoke(IPC_CHANNELS.POSTS_CLEAR_ALL),
+    exportCsv: (): Promise<IpcResponse<string | null>> =>
+      ipcRenderer.invoke(IPC_CHANNELS.POSTS_EXPORT_CSV),
+    exportJson: (): Promise<IpcResponse<string | null>> =>
+      ipcRenderer.invoke(IPC_CHANNELS.POSTS_EXPORT_JSON)
   },
 
   // ── Scraper ───────────────────────────────────

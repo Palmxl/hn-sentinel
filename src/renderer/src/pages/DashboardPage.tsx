@@ -46,9 +46,16 @@ export function DashboardPage(): React.ReactElement {
     }
   }
 
+  const handleExportCsv = async (): Promise<void> => {
+    await window.electronAPI.posts.exportCsv()
+  }
+
+  const handleExportJson = async (): Promise<void> => {
+    await window.electronAPI.posts.exportJson()
+  }
+
   return (
     <div className="flex flex-col h-full">
-      {/* Filtros y acciones */}
       <PostsFilters
         searchQuery={searchQuery}
         selectedKeyword={selectedKeyword}
@@ -62,10 +69,11 @@ export function DashboardPage(): React.ReactElement {
         onSortOrderChange={setSortOrder}
         onClearAll={handleClearAll}
         onRunNow={handleRunNow}
+        onExportCsv={handleExportCsv}
+        onExportJson={handleExportJson}
         isScrapingNow={schedulerStatus?.isScrapingNow ?? false}
       />
 
-      {/* Contenido */}
       <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
@@ -80,10 +88,7 @@ export function DashboardPage(): React.ReactElement {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <p className="text-red-400 text-sm">Error: {error}</p>
-              <button
-                onClick={fetchPosts}
-                className="btn-ghost mt-2 text-xs"
-              >
+              <button onClick={fetchPosts} className="btn-ghost mt-2 text-xs">
                 Reintentar
               </button>
             </div>

@@ -73,6 +73,10 @@ export const IPC_CHANNELS = {
   SCRAPER_RUN_NOW: 'scraper:runNow',
   SCRAPER_GET_STATUS: 'scraper:getStatus',
 
+  // Exportar datos
+  POSTS_EXPORT_CSV: 'posts:exportCsv',
+  POSTS_EXPORT_JSON: 'posts:exportJson',
+
   // Scheduler
   SCHEDULER_GET_STATUS: 'scheduler:getStatus',
   SCHEDULER_UPDATE_INTERVAL: 'scheduler:updateInterval',

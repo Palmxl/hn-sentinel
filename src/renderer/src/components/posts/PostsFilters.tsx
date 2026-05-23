@@ -14,6 +14,8 @@ interface Props {
   onSortOrderChange: (order: 'asc' | 'desc') => void
   onClearAll: () => void
   onRunNow: () => void
+  onExportCsv: () => void
+  onExportJson: () => void
   isScrapingNow: boolean
 }
 
@@ -30,6 +32,8 @@ export function PostsFilters({
   onSortOrderChange,
   onClearAll,
   onRunNow,
+  onExportCsv,
+  onExportJson,
   isScrapingNow
 }: Props): React.ReactElement {
   return (
@@ -85,6 +89,18 @@ export function PostsFilters({
       <span className="text-sentinel-text-muted text-xs">
         {totalPosts} post{totalPosts !== 1 ? 's' : ''}
       </span>
+
+      {/* Botones de exportar — solo si hay posts */}
+      {totalPosts > 0 && (
+        <>
+          <button onClick={onExportCsv} className="btn-ghost text-xs">
+            ↓ CSV
+          </button>
+          <button onClick={onExportJson} className="btn-ghost text-xs">
+            ↓ JSON
+          </button>
+        </>
+      )}
 
       {/* Botón limpiar todo */}
       {totalPosts > 0 && (
